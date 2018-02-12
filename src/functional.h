@@ -1,3 +1,6 @@
+#ifndef ICE9_FUNCTIONAL_H
+#define ICE9_FUNCTIONAL_H
+
 #include <functional>
 #include <type_traits>
 
@@ -47,3 +50,5 @@ namespace ice9
     }
   };
 }
+
+#endif // ICE9_FUNCTIONAL_H
