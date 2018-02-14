@@ -90,20 +90,20 @@ namespace ice9
       return *this;
     }
 
-    std::vector<array_view<T>> split(array_view delem) const
+    std::vector<array_view<T>> split(array_view delim) const
     {
       std::vector<array_view<T>> results;
-      if (delem.size() > size())
+      if (delim.size() > size())
         return results;
 
       auto temp = begin();
       for (auto it = temp; it != end(); ++it) {
-        if (std::equal(delem.begin(), delem.end(), it)) {
+        if (std::equal(delim.begin(), delim.end(), it)) {
           results.emplace_back(temp, it);
-          std::advance(it, static_cast<ptrdiff_t>(delem.size()) - 1);
+          std::advance(it, static_cast<ptrdiff_t>(delim.size()) - 1);
           temp = std::next(it);
         }
-        else if (std::distance(it, end()) <= static_cast<ptrdiff_t>(delem.size())) {
+        else if (std::distance(it, end()) <= static_cast<ptrdiff_t>(delim.size())) {
           results.emplace_back(temp, end());
           break;
         }
