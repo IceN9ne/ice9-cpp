@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <iterator>
 #include <utility>
+#include <vector>
 
 namespace ice9
 {
@@ -37,7 +38,7 @@ namespace ice9
     explicit constexpr array_view(pointer b, pointer e) noexcept : dataptr{b}, datalen(std::distance(b,e)) {}
 
     template <typename Cont>
-    explicit constexpr array_view(const Cont& cont):array_view{std::begin(cont),std::end(cont)} {}
+    constexpr array_view(const Cont& cont):array_view{std::begin(cont),std::end(cont)} {}
 
     constexpr const_iterator begin() const noexcept { return dataptr; }
     constexpr const_iterator end() const noexcept { return begin() + size(); }
@@ -75,18 +76,40 @@ namespace ice9
     constexpr bool starts_with(array_view av) const noexcept { if (av.size() > size()) return false; return std::equal(begin(), end(), av.begin()); }
     constexpr bool ends_with(array_view av) const noexcept { if (av.size() > size()) return false; return std::equal(rbegin(), rend(), av.rbegin()); }
 
-    constexpr array_view& remove_prefix(size_type n)
+    constexpr array_view<T>& remove_prefix(size_type n)
     {
       // FIXME: if n >= datalen
       dataptr += n;
       datalen -= n;
       return *this;
     }
-    constexpr array_view& remove_suffix(size_type n)
+    constexpr array_view<T>& remove_suffix(size_type n)
     {
       // FIXME: if n >= datalen
       datalen -= n;
       return *this;
+    }
+
+    std::vector<array_view<T>> split(array_view delem) const
+    {
+      std::vector<array_view<T>> results;
+      if (delem.size() > size())
+        return results;
+
+      auto temp = begin();
+      for (auto it = temp; it != end(); ++it) {
+        if (std::equal(delem.begin(), delem.end(), it)) {
+          results.emplace_back(temp, it);
+          std::advance(it, static_cast<ptrdiff_t>(delem.size()) - 1);
+          temp = std::next(it);
+        }
+        else if (std::distance(it, end()) <= static_cast<ptrdiff_t>(delem.size())) {
+          results.emplace_back(temp, end());
+          break;
+        }
+      }
+
+      return results;
     }
 
   private:
@@ -143,8 +166,8 @@ namespace ice9
     constexpr reverse_array_view(const reverse_array_view&) noexcept = default;
     constexpr reverse_array_view(reverse_array_view&&) noexcept = default;
 
-    constexpr reverse_array_view& operator=(const reverse_array_view&) noexcept = default;
-    constexpr reverse_array_view& operator=(reverse_array_view&&) noexcept = default;
+    constexpr reverse_array_view<T>& operator=(const reverse_array_view&) noexcept = default;
+    constexpr reverse_array_view<T>& operator=(reverse_array_view&&) noexcept = default;
 
     explicit constexpr reverse_array_view(array_view<T> av) noexcept : array_view<T>{av}{}
     explicit constexpr reverse_array_view(pointer ptr, size_type len) noexcept : array_view<T>{ptr,len} {}
@@ -184,12 +207,12 @@ namespace ice9
     using array_view<T>::starts_with;
     using array_view<T>::ends_with;
 
-    constexpr reverse_array_view& remove_prefix(size_type n) const noexcept
+    constexpr reverse_array_view<T>& remove_prefix(size_type n) const noexcept
     {
       array_view<T>::remove_suffix(n);
       return *this;
     }
-    constexpr reverse_array_view& remove_suffix(size_type n) const noexcept
+    constexpr reverse_array_view<T>& remove_suffix(size_type n) const noexcept
     {
       array_view<T>::remove_prefix(n);
       return *this;
