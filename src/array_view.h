@@ -39,7 +39,7 @@ namespace ice9
     explicit constexpr array_view(pointer b, pointer e) noexcept : dataptr{b}, datalen(std::distance(b,e)) {}
 
     template <typename Cont>
-    constexpr array_view(const Cont& cont):array_view{std::begin(cont),std::end(cont)} {}
+    constexpr array_view(const Cont& cont) noexcept : array_view{std::begin(cont),std::end(cont)} {}
 
     constexpr const_iterator begin() const noexcept { return dataptr; }
     constexpr const_iterator end() const noexcept { return begin() + size(); }
