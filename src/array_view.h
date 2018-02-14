@@ -5,6 +5,7 @@
 #include <iterator>
 #include <utility>
 #include <vector>
+#include <iostream>
 
 namespace ice9
 {
@@ -90,7 +91,7 @@ namespace ice9
       return *this;
     }
 
-    std::vector<array_view<T>> split(array_view delim) const
+    std::vector<array_view<T>> split(array_view delim, bool skip_empty = false) const
     {
       std::vector<array_view<T>> results;
       if (delim.size() > size())
@@ -99,12 +100,16 @@ namespace ice9
       auto temp = begin();
       for (auto it = temp; it != end(); ++it) {
         if (std::equal(delim.begin(), delim.end(), it)) {
-          results.emplace_back(temp, it);
+          if (!skip_empty || temp != it)
+            results.emplace_back(temp, it);
           std::advance(it, static_cast<ptrdiff_t>(delim.size()) - 1);
           temp = std::next(it);
+          if (temp == end() && !skip_empty)
+            results.emplace_back(temp, end());
         }
         else if (std::distance(it, end()) <= static_cast<ptrdiff_t>(delim.size())) {
-          results.emplace_back(temp, end());
+          if (!skip_empty || temp != end())
+            results.emplace_back(temp, end());
           break;
         }
       }
