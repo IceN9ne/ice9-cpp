@@ -70,7 +70,11 @@ namespace ice9
 
     constexpr const_pointer data() const noexcept { return dataptr; }
 
-    constexpr void swap(array_view& av) noexcept { std::swap(dataptr, av.data_ptr); std::swap(datalen, av.datalen); }
+    constexpr void swap(array_view& av) noexcept
+    {
+      std::swap(dataptr, av.data_ptr);
+      std::swap(datalen, av.datalen);
+    }
 
     constexpr reverse_array_view<T> reverse() const noexcept { return reverse_array_view{*this}; }
 
@@ -152,6 +156,12 @@ namespace ice9
   }
 
   template <typename T>
+  constexpr void swap(array_view<T>& a1, array_view<T>& a2) noexcept
+  {
+    a1.swap(a2);
+  }
+
+  template <typename T>
   class reverse_array_view : private array_view<T>
   {
   public:
@@ -225,7 +235,7 @@ namespace ice9
   };
 
   template <typename T>
-  bool operator==(reverse_array_view<T> lhs, reverse_array_view<T> rhs) noexcept
+  constexpr bool operator==(reverse_array_view<T> lhs, reverse_array_view<T> rhs) noexcept
   {
     if (lhs.size() != rhs.size())
       return false;
@@ -233,7 +243,7 @@ namespace ice9
   }
 
   template <typename T>
-  bool operator==(reverse_array_view<T> lhs, array_view<T> rhs) noexcept
+  constexpr bool operator==(reverse_array_view<T> lhs, array_view<T> rhs) noexcept
   {
     if (lhs.size() != rhs.size())
       return false;
@@ -241,15 +251,21 @@ namespace ice9
   }
 
   template <typename T>
-  bool operator!=(reverse_array_view<T> lhs, reverse_array_view<T> rhs) noexcept
+  constexpr bool operator!=(reverse_array_view<T> lhs, reverse_array_view<T> rhs) noexcept
   {
     return !(lhs == rhs);
   }
 
   template <typename T>
-  bool operator!=(reverse_array_view<T> lhs, array_view<T> rhs) noexcept
+  constexpr bool operator!=(reverse_array_view<T> lhs, array_view<T> rhs) noexcept
   {
     return !(lhs == rhs);
+  }
+
+  template <typename T>
+  constexpr void swap(reverse_array_view<T>& a1, reverse_array_view<T>& a2) noexcept
+  {
+    a1.swap(a2);
   }
 
   template <typename T>
